@@ -1,12 +1,23 @@
 {
   "devDependencies": {
+    "@nestjs/jwt": "^10.0.3",
+    "@types/multer": "^1.4.7",
     "turbo": "^1.9.3"
   },
   "scripts": {
-    "dev" : "turbo run dev",
+    "dev": "turbo run dev",
     "build": "turbo run build"
   },
-  "workspaces":[
+  "workspaces": [
     "apps/*"
-  ]
+  ],
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.329.0",
+    "@nestjs/config": "^2.3.1",
+    "@nestjs/mongoose": "^9.2.2",
+    "@types/bcrypt": "^5.0.0",
+    "bcrypt": "^5.1.0",
+    "mongoose": "^7.1.0",
+    "yup": "^1.1.1"
+  }
 }
