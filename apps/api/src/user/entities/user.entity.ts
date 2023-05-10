@@ -29,6 +29,11 @@ export class User {
 
     @Prop()
     confirm: Boolean
+
+    @Prop({default: 0})
+    post_count: Number
 }
+
+
 
 export const UserSchema = SchemaFactory.createForClass(User)

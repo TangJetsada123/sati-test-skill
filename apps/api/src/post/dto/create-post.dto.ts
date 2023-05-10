@@ -1,7 +1,15 @@
 export class CreatePostDto {
-  title: string;
+  text: string;
 
-  content: string;
+  post_image: string;
 
   userId: string;
+}
+
+export class UserIdDto{
+  userId: string
+}
+
+export class PostConfirmDeleteDto{
+  confirm: Boolean
 }

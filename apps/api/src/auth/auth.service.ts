@@ -19,14 +19,14 @@ export class AuthService {
         return null;
     }
 
-    async signIn(email, pass) {
-        const user = await this.userService.findOne(email);
-        if (user?.password !== pass) {
-            throw new UnauthorizedException();
-        }
+    async signIn(email: string, pass: string) {
+        const user = await this.userService.findByEmail(email);
+        // if (user?.password !== pass) {
+        //     throw new UnauthorizedException();
+        // }
         const payload = { email: user.email, sub: user._id };
         return {
-            access_token: await this.jwtService.signAsync(payload),
+            access_token: await this.jwtService.sign(payload),
         };
-}
+    }
 }

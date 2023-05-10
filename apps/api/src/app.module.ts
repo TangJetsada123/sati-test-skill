@@ -9,6 +9,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UploadModule } from './upload/upload.module';
 import { PostModule } from './post/post.module';
 import { AuthModule } from './auth/auth.module';
+import authenConfig from './config/authen.config';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
         load:[
             databaseConfig,
             uploadConfig,
+            authenConfig
         ]
     }),
     UserModule,

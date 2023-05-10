@@ -57,7 +57,7 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
-  @UseGuards(AuthGuard)
+
   //this route will reset password and check new password must not same as last 5 older password 
   @Put('/reset-password/:_id')
   async ResetPassword(@Param('_id') userId, @Body() userDto: PasswordDto) {
