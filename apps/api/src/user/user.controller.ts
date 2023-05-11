@@ -14,7 +14,6 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly uploadService: UploadService,
-    private readonly configService: ConfigService,
   ) { }
 
   @UseGuards(AuthGuard)

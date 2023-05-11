@@ -34,6 +34,4 @@ export class User {
     post_count: Number
 }
 
-
-
 export const UserSchema = SchemaFactory.createForClass(User)

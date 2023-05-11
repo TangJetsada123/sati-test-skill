@@ -1,3 +1,7 @@
+import { PartialType } from '@nestjs/mapped-types';
+
+
+
 export class CreatePostDto {
   text: string;
 
@@ -13,3 +17,6 @@ export class UserIdDto{
 export class PostConfirmDeleteDto{
   confirm: Boolean
 }
+
+export class UpdatePostDto extends PartialType(CreatePostDto) {}
+

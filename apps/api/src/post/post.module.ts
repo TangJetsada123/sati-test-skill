@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PostSchema } from './entities/post.entity';
 import { Post } from './entities/post.entity';
 import { UserModule } from 'src/user/user.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 
 @Module({
@@ -15,6 +16,7 @@ import { UserModule } from 'src/user/user.module';
     UserModule,   
     UploadModule,
     ConfigModule,
+    AuthModule
   ],
   controllers: [PostController],
   providers: [PostService],

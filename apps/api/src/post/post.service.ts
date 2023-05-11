@@ -1,6 +1,5 @@
-import { Injectable, forwardRef } from '@nestjs/common';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreatePostDto,UpdatePostDto} from './dto/create-post.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post } from './entities/post.entity';
 import { Model } from 'mongoose';
@@ -37,17 +36,17 @@ export class PostService {
   }
 
   async remove(id: string) {
-    const post = await this.postModel.findById({_id: id})
-    const userId = post.userId
-    await this.postModel.findByIdAndDelete({_id:id})
-
-    await this.userModel.findByIdAndUpdate(
-      userId,
-      { $inc: { post_count: -1 } },
-      { new: true },
-    );
-
-    
-
+    try{
+      const post = await this.postModel.findById({_id: id})
+      const userId = post.userId
+      await this.postModel.findByIdAndDelete({_id:id})
+      await this.userModel.findByIdAndUpdate(
+        userId,
+        { $inc: { post_count: -1 } },
+        { new: true },
+      );
+      }catch(error){
+        throw new NotFoundException()
+      }
   }
 }
