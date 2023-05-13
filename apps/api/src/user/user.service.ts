@@ -3,6 +3,7 @@ import { CreateUserDto,UpdateUserDto } from './dto/user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import { Model } from 'mongoose';
+import { UpdatePostDto } from 'src/post/dto/create-post.dto';
 
 @Injectable()
 export class UserService {
@@ -26,16 +27,16 @@ export class UserService {
     return this.userModel.findOne({email: email})
   }
 
-  resetPassword(id,password: String){
-    return this.userModel.findByIdAndUpdate(id,{password},{new : true})
+  resetPassword(id: string,password: String){
+    return this.userModel.findByIdAndUpdate({_id: id},{password},{new : true})
 }
 
 
   update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    return this.userModel.findByIdAndUpdate(id,updateUserDto)
   }
 
   remove(id: string) {
-    return `This action removes a #${id} user`;
+    return this.userModel.findByIdAndDelete({_id: id})
   }
 }

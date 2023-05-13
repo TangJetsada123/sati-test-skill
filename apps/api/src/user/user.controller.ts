@@ -6,7 +6,6 @@ import { YupValidatorPipe } from 'src/validation/validation.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from 'src/upload/upload.service';
 import * as bcrypt from 'bcrypt';
-import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from 'src/auth/auth.guards';
 
 @Controller('user')
@@ -14,12 +13,11 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly uploadService: UploadService,
-  ) { }
+  ) {}
 
-  @UseGuards(AuthGuard)
   @UsePipes(new YupValidatorPipe(UservalidateSchema))
   @UseInterceptors(FileInterceptor('file'))
-  @Post()
+  @Post('/register')
   async create(@Body() createUserDto: CreateUserDto, @UploadedFile() file: Express.Multer.File) {
     const email = await this.userService.findByEmail(createUserDto.email)
     if (email) {
@@ -51,9 +49,12 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
-  @Put(':_id')
-  update(@Param('_id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  @UseInterceptors(FileInterceptor('file'))
+  @Put('/update/:_id')
+  async update(@Param('_id') id: string, @Body() updateUserDto: UpdateUserDto,@UploadedFile() file: Express.Multer.File) {
+    const image = await this.uploadService.upload(file)
+    updateUserDto.profile_image = image
+    return this.userService.update(id, {...updateUserDto});
   }
 
 
@@ -91,8 +92,8 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Delete(':_id')
-  remove(@Param('_id') id: string, @Body() confirmDto: ConfirmDeleteDto) {
-    if (confirmDto.confirm == true) {
+  remove(@Param('_id') id: string, @Body() confirm: ConfirmDeleteDto) {
+    if (Boolean(confirm) == Boolean(true)) {
       return this.userService.remove(id);
     } else {
       throw new BadRequestException('Please Confirm To Delete Permanently')

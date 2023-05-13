@@ -5,6 +5,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from 'src/upload/upload.service';
 import { ConfirmDeleteDto } from 'src/user/dto/user.dto';
 import { AuthGuard } from 'src/auth/auth.guards';
+import { ObjectId } from 'mongoose';
 
 @Controller('post')
 export class PostController {
@@ -26,6 +27,13 @@ export class PostController {
   @Get()
   findAll() {
     return this.postService.findAll();
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/user/:_id')
+  findByUserId(@Param("_id") userId: string){
+    
+    return this.postService.findAllByUserId(userId)
   }
 
   @UseGuards(AuthGuard)

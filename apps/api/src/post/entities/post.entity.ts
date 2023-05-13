@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
-
+import { User } from "src/user/entities/user.entity";
 
 export type PostDocument = Post & Document
 
@@ -12,8 +12,8 @@ export class Post {
     @Prop()
     post_image: string
 
-    @Prop()
-    userId: Types.ObjectId
+    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+    user: User  | Types.ObjectId;
 
     @Prop()
     confirm: Boolean
