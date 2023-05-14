@@ -18,19 +18,7 @@ const ProfileAccount = () => {
         password: '',
         confirmPassword: ''
     })
-    const userRef = useRef();
-    const errRef = useRef();
-    const [validPwd, setValidPwd] = useState(false);
-    const [pwdFocus, setPwdFocus] = useState(false);
-    const [validConPwd, setValidConPwd] = useState(false);
-    const [conpwdFocus, setConPwdFocus] = useState(false);
-    const [errMsg, setErrMsg] = useState('');
-
-    useEffect(() => {
-        setValidPwd(PASSWORD_REGEX.test(resetData.password))
-        setValidConPwd(resetData.password === resetData.confirmPassword)
-    }, [{ ...resetData }])
-
+    
 
     const handlePassword = (e) => {
         setResetData({
@@ -87,54 +75,59 @@ const ProfileAccount = () => {
                 title: ` Password must contain at least one Uppercase letter, one Lowercase letter, one digit, and one special symbol @$!%*?&. `,
             }
             )
-        }else{
- if (resetData.password == resetData.confirmPassword) {
-            return (
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    cancelButtonColor: '#d33',
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, Change it!'
-                }).then(async (result) => {
-                    const token = localStorage.getItem('token')
-                    if (result.isConfirmed) {
-                        const password = {
-                            current_password: resetData.current_password,
-                            password: resetData.password
-                        }
-                        const header = {
-                            Authorization: `Bearer ${token}`
-                        }
-                        try {
-                            await axios.put(`${api}/user/reset-password/${data._id}`, password, {
-                                headers: header
-                            }).then(async (res) => {
-                                console.log(res.data)
-                                await Swal.fire(
-                                    'Your Password has been updated!',
-                                    'success'
-                                )
-                                setClickResetPwd(false)
-                                navigate('/profile')
-                                window.location.reload()
-                            })
-                        } catch (error) {
-                            await Swal.fire({
-                                icon: 'error',
-                                title: `${error['response'].data.message}`,
+        } else {
+            if (resetData.password == resetData.confirmPassword) {
+                return (
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        cancelButtonColor: '#d33',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, Change it!'
+                    }).then(async (result) => {
+                        const token = localStorage.getItem('token')
+                        if (result.isConfirmed) {
+                            const password = {
+                                current_password: resetData.current_password,
+                                password: resetData.password
                             }
-                            )
+                            const header = {
+                                Authorization: `Bearer ${token}`
+                            }
+                            try {
+                                await axios.put(`${api}/user/reset-password/${data._id}`, password, {
+                                    headers: header
+                                }).then(async (res) => {
+                                    console.log(res.data)
+                                    await Swal.fire(
+                                        'Your Password has been updated!',
+                                        'success'
+                                    )
+                                    setClickResetPwd(false)
+                                    navigate('/profile')
+                                    window.location.reload()
+                                })
+                            } catch (error) {
+                                await Swal.fire({
+                                    icon: 'error',
+                                    title: `${error['response'].data.message}`,
+                                }
+                                )
+                            }
                         }
                     }
-                }
+                    )
                 )
-            )
+            }else{
+                await Swal.fire({
+                    icon: 'error',
+                    title: `Password and Confirm Password missmatch`,
+                })
+            }
         }
-        }
-       
+
     }
 
     const handleEdit = () => {

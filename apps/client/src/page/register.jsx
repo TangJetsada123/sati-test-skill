@@ -1,4 +1,4 @@
-import MultiStepForm from "../components/Form";
+import MultiStepForm from "../components/form";
 
 const Register = () => {
     return (

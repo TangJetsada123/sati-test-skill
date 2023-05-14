@@ -31,6 +31,7 @@
     "mongoose": "^7.1.0",
     "react-router-dom": "^6.11.1",
     "sweetalert2": "^11.7.5",
+    "vite": "^4.3.5",
     "yup": "^1.1.1"
   }
 }

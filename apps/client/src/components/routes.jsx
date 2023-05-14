@@ -3,7 +3,7 @@ import {
 } from 'react-router-dom';
 import Register from '../page/register';
 import Login from '../page/login';
-import MultiStepForm from './Form';
+import MultiStepForm from './form';
 import Edit from '../page/edit-profile';
 import Homepage from '../page/home'
 import Profile from '../page/profile'

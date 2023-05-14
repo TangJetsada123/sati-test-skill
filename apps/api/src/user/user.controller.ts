@@ -61,18 +61,22 @@ export class UserController {
 
 
   //this route will reset password and check new password must not same as last 5 older password 
-  @UsePipes(new YupValidatorPipe(PasswordvalidateSchema))
+  // @UsePipes(new YupValidatorPipe(PasswordvalidateSchema))
   @Put('/reset-password/:_id')
   async ResetPassword(@Param('_id') userId, @Body() userDto: PasswordDto) {
     const user = await this.userService.findOne(userId)
     const salt = this.configService.get('database.salt')
     const hash = await bcrypt.hash(userDto.password, salt)
     if (!user) {
+      console.log("1")
       throw new BadRequestException('The user is undefined or null. Please provide a valid user.')
     }
+    console.log(userDto.current_password)
+    console.log(user.password)
 
     const verifyPassword = await  bcrypt.compare(userDto.current_password,user.password)
     if(!verifyPassword){
+      console.log("2")
       throw new BadRequestException("Current Password  invalid!")
     }
 
@@ -80,6 +84,7 @@ export class UserController {
     for (let i in olderPassword) {
       let isMatch = await bcrypt.compare(userDto.password, olderPassword[i])
       if (isMatch) {
+        console.log("3")
         throw new BadRequestException('Your password matches one of your last 5 passwords. Please choose a different password.')
       }
     }
