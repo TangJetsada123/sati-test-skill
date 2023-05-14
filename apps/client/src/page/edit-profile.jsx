@@ -2,26 +2,15 @@ import Navbar from "../components/navbar";
 import Swal from 'sweetalert2'
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import jwt_decode from "jwt-decode";
-import { faInfoCircle } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { api } from "../components/path";
 
-
-
-const fileTypes = ["image/jpeg", "image/png", "image/bmp"]; // Allowed file types
-const maxSize = 5 * 1024 * 1024; // 5 MB
 const Edit = () => {
     const navigate = useNavigate()
-    const [userToken, setUserToken] = useState('')
-    const [userId, setUserId] = useState('')
-    const [user, setUser] = useState({
-        email: '',
-        firstname: '',
-        lastname: '',
-        file: {}
-    })
+    const data = JSON.parse(localStorage.getItem("userData"))
+    const token = localStorage.getItem('token')
+
     const [formData, setFormData] = useState({
         firstname: "",
         lastname: "",
@@ -31,22 +20,9 @@ const Edit = () => {
 
     useEffect(() => {
         const token = localStorage.getItem('token')
-        const user = jwt_decode(token)
-        setUserId(user.sub)
-        setUserToken(token)
         if (!token) {
             navigate('/')
         }
-        const header = {
-            Authorization: `Bearer ${token}`
-        }
-
-        axios.get(`${api}/user/${user.sub}`, {
-            headers: header
-        }
-        ).then((res) => {
-            setUser(res.data)
-        })
     }, [])
 
     const handleChange = (e) => {
@@ -68,26 +44,32 @@ const Edit = () => {
                 denyButtonText: `Don't save`,
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    const token = localStorage.getItem('token')
-                    const user = jwt_decode(token)
-                    await axios.put(`${api}/user/update/${user.sub}`, formData, {
+                    await axios.put(`${api}/user/update/${data._id}`, formData, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data'
                         }
                     }).then(async (res) => {
-                        console.log(res.data)
-                        await Swal.fire('Saved!', '', 'success')
-                        window.location = 'profile'
+                        await Swal.fire('Saved!', '', 'success').then(()=>{
+                            axios.get(`${api}/user/${data._id}`,{
+                                headers: {
+                                    Authorization: `Bearer ${token}`
+                                }
+                            }).then((res)=>{
+                                localStorage.setItem('userData',JSON.stringify(res.data))
+                                window.location.reload()
+                            })
+                            navigate('/profile')
+                        })
                     })
                 } else if (result.isDenied) {
                     await Swal.fire('Changes are not saved', '', 'info')
-                    window.location.reload()
                 }
             })
         } catch (error) {
             await Swal.fire('Changes are not saved', '', 'info')
-            window.location.reload()
+            navigate('profile')
+           
         }
     }
 
@@ -105,14 +87,12 @@ const Edit = () => {
                                 </button></h1>
                         </div>
                         <p className="mt-1 text-sm leading-6 text-gray-600">This information will be displayed publicly so be careful what you share.</p>
-                        <div className="mt-5 grid grid-cols-1 sm:grid-cols-6">
-                            <div className="sm:col-span-4 ">
-                                <label for="email" className="block text-sm font-medium leading-6 text-gray-900">Email</label>
-                                <div className="mt-2 p-2">
-                                <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-                                        <input type="text" id="disabled-input" aria-label="disabled input" class="rounded-lg text-gray-600 " value={user.email} disabled />
+                        <div className="mt-5 ">
+                            <div className=" ">
+                                <label for="email" className="block text-sm font-medium ">Email</label>
+                                <div class="rounded-lg text-gray-600 ">
+                                        <input type="text" id="disabled-input" className="w-full" value={data.email} disabled />
                                     </div>
-                                </div>
                             </div>
                         </div>
                         <div className=" grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -120,7 +100,7 @@ const Edit = () => {
                                 <label for="first-name" className="block text-sm font-medium leading-6 text-gray-900">First name</label>
                                 <div className="mt-2 ">
                                     <input
-                                        placeholder={user.firstname}
+                                        placeholder={data.firstname}
                                         required
                                         type="text"
                                         id="firstname"
@@ -138,7 +118,7 @@ const Edit = () => {
                                         type="text"
                                         id="lastname"
                                         name="lastname"
-                                        placeholder={user.lastname}
+                                        placeholder={data.lastname}
                                         value={formData.value}
                                         onChange={handleChange}
                                         className="h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"

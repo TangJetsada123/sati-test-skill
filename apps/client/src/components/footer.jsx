@@ -10,11 +10,8 @@ const Footer = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
                         <div>
-                            <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Home</h2>
                             <ul className="text-gray-600 dark:text-gray-400 font-medium">
-                                <li>
-                                    <a href="https://sati.co.th/" className="hover:underline">Our Story</a>
-                                </li>
+                                Sati
                             </ul>
                         </div>
                         <div>
@@ -31,7 +28,7 @@ const Footer = () => {
                                 <li className="mb-4">
                                     <a href="https://sati.co.th/" className="hover:underline ">
                                         Contact@sati.co.th
-                                        +66 92 693 9545
+                                        +66 92 693 9545 
                                         125/3 Chonprathan Rd.,
                                         Su Thep, Amphoe Mueang,
                                         Chiang Mai, Thailand, 50200</a>

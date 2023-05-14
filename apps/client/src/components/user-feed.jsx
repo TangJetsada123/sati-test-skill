@@ -1,36 +1,34 @@
-import { useEffect, useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import Post from "./post";
 import TextareaAutosize from '@mui/base/TextareaAutosize';
-import jwtDecode from "jwt-decode"
 import axios from "axios";
 import { api } from "./path";
 import Swal from "sweetalert2";
+import { MyContext } from "../context/context";
+import { useNavigate } from "react-router-dom";
+
 
 const UserFeed = () => {
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     const [description, setDescription] = useState('');
-    const [user, setUser] = useState({
-        email: '',
-        firstname: '',
-        lastname: '',
-        profile_image: ''
-    })
+    const {myData} = useContext(MyContext)
     const token = localStorage.getItem('token')
-    const userId = jwtDecode(token)
+    const navigate = useNavigate()
+    const data = JSON.parse(localStorage.getItem("userData"))
+    const [userPost,setUserPost] = useState(false)
+    
 
-    useEffect(() => {
-        axios.get(`${api}/user/${userId.sub}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'multipart/form-data',
+
+    useEffect(()=>{
+        axios.get(`${api}/post/user/${data._id}`,{
+            headers:{
+                Authorization: `Bearer ${token}`
             }
+        }).then((res)=>{
+            setUserPost(true)
         })
-            .then((res) => {
-                setUser(res.data)
-            })
     })
-
 
     const handleImageUpload = (event) => {
         const selectedImage = event.target.files[0];
@@ -47,7 +45,7 @@ const UserFeed = () => {
         axios.post(`${api}/post`, {
             text: description,
             file: image,
-            userId: userId.sub
+            userId: data._id
         }, {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -55,25 +53,29 @@ const UserFeed = () => {
             }
 
         }).then(async (res) => {
-            await Swal.fire(
-                'Post Success!',
-                '',
-                'success'
-            )
-            window.location = '/profile'
+            axios.get(`${api}/user/${data._id}`,{
+                headers:{
+                    Authorization: `Bearer ${token}`
+                }
+            }).then(async (res)=>{
+                await Swal.fire(
+                    'Post Success!',
+                    '',
+                    'success'
+                )
+                localStorage.setItem('userData',JSON.stringify(res.data))
+                window.location.reload()
+            })
         })
     };
 
     return (<>
-        <div className="">
-            <div className="p-6">
+        <div>
+            <div >
                 <div className="flex justify-evenly gap-5 mr-20 ">
-                    <div className="Grow w-[700px] mr-5 ml-6">
+                    <div className="Grow w-[750px] mr-5 ml-6">
                         <div className="">
                             <div className="flex-box ">
-                                <div className="flex justify-between">
-                                    <div className="text-2xl font-bold  ml-6">Your Feed</div>
-                                </div>
                                 <div>
                                     <form className="bg-white shadow-md rounded px-8  pb-8 mb-4" onSubmit={handleSubmit}>
                                         <div className="mb-4">
@@ -117,7 +119,7 @@ const UserFeed = () => {
                                 </div>
                             </div>
                             <div className=" bg-white shadow-2xl">
-                                <Post />
+                                {userPost ? (<div><Post id={`user/${data._id}`} /></div>):null}
                             </div>
                         </div>
                     </div>

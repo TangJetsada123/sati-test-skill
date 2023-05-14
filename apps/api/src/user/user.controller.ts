@@ -1,18 +1,20 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, BadRequestException, UsePipes, UseInterceptors, UploadedFile, Query, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ConfirmDeleteDto, CreateUserDto, PasswordDto, UservalidateSchema } from './dto/user.dto';
+import { ConfirmDeleteDto, CreateUserDto, PasswordDto, PasswordvalidateSchema, UservalidateSchema } from './dto/user.dto';
 import { UpdateUserDto } from './dto/user.dto';
 import { YupValidatorPipe } from 'src/validation/validation.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from 'src/upload/upload.service';
 import * as bcrypt from 'bcrypt';
 import { AuthGuard } from 'src/auth/auth.guards';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('user')
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly uploadService: UploadService,
+    private readonly configService: ConfigService
   ) {}
 
   @UsePipes(new YupValidatorPipe(UservalidateSchema))
@@ -25,7 +27,7 @@ export class UserController {
     }
     const image = await this.uploadService.upload(file)
     createUserDto.profile_image = image
-    const salt = await bcrypt.genSalt()
+    const salt = this.configService.get('database.salt')
     createUserDto.password = await bcrypt.hash(createUserDto.password, salt)
     return this.userService.create({ ...createUserDto });
   }
@@ -59,14 +61,19 @@ export class UserController {
 
 
   //this route will reset password and check new password must not same as last 5 older password 
+  @UsePipes(new YupValidatorPipe(PasswordvalidateSchema))
   @Put('/reset-password/:_id')
   async ResetPassword(@Param('_id') userId, @Body() userDto: PasswordDto) {
     const user = await this.userService.findOne(userId)
-    const salt = await bcrypt.genSalt()
+    const salt = this.configService.get('database.salt')
     const hash = await bcrypt.hash(userDto.password, salt)
-
     if (!user) {
       throw new BadRequestException('The user is undefined or null. Please provide a valid user.')
+    }
+
+    const verifyPassword = await  bcrypt.compare(userDto.current_password,user.password)
+    if(!verifyPassword){
+      throw new BadRequestException("Current Password  invalid!")
     }
 
     const olderPassword = user.lastPassword

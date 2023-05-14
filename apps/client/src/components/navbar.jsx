@@ -1,45 +1,42 @@
 import { useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
-import { useMyContext } from "../context/context";
+import { MyContext } from "../context/context";
 import axios from "axios";
-import jwtDecode from "jwt-decode";
 import { api } from "./path";
-
 const Navbar = () => {
     const navigate = useNavigate()
     const [onClick, setOnClick] = useState(false)
-    const { myData, setMyData } = useMyContext();
+    const { myData, setMyData } = useContext(MyContext);
+    const data = JSON.parse(localStorage.getItem("userData"))
+    const token = localStorage.getItem('token')
 
-    const onClickSignOut = async () => {
+
+    const onClickSignOut = () => {
         localStorage.removeItem('token')
         navigate('/')
     }
     const onClickProfile = () => {
-        window.location = 'profile'
+        window.location = '/profile'
     }
-
+    
     const IconMenu = () => {
         return (
             <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
-                <div onClick={onClickProfile} className="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile
+                <div onClick={onClickProfile} className="hover:bg-gray-300">
+                    <button type="button"  className="block px-4 py-2 text-sm text-gray-700 " role="menuitem" tabindex="-1" id="user-menu-item-0">
+                        Your Profile
+                    </button>
                 </div>
-                <div onClick={onClickSignOut} className="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2" >Sign out
+                <div  onClick={onClickSignOut}  className="hover:bg-gray-300">
+                    <button className="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">
+                        Sign Out
+                    </button>
                 </div>
             </div>
         )
     }
 
-    useEffect(() => {
-        const token = localStorage.getItem('token')
-        const user = jwtDecode(token)
-        axios.get(`${api}/user/${user.sub}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }).then((res) => {
-            setMyData(res.data)
-        })
-    }, [])
+
 
 
     return (<div>
@@ -67,9 +64,9 @@ const Navbar = () => {
                         <div className="hidden sm:ml-6 sm:block">
                             <div className="flex space-x-4">
                                 <a href="/home" className="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Home</a>
-                                <a href="/product" className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">SERVICE</a>
-                                <a href="/about" className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">ABOUT US</a>
-                                <a href="/contact-us" className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">CONTACT</a>
+                                <a href="/home" className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">SERVICE</a>
+                                <a href="/profile" className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">ABOUT US</a>
+                                <a href="/profile" className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">CONTACT</a>
                             </div>
                         </div>
                     </div>
@@ -78,7 +75,7 @@ const Navbar = () => {
                             <div onClick={() => setOnClick(!onClick)}>
                                 <button type="button" className="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                                     <span className="sr-only">Open user menu</span>
-                                    <img className="h-10 w-10 rounded-full bg-white object-cover " alt="" />
+                                    <img className="h-10 w-10 rounded-full bg-white object-cover " alt="" src={data.profile_image} />
                                 </button>
                             </div>
                             {onClick ? <IconMenu></IconMenu> : null}
@@ -88,7 +85,7 @@ const Navbar = () => {
             </div>
             <div className="sm:hidden" id="mobile-menu">
                 <div className="space-y-1 px-2 pb-3 pt-2">
-                    <a href="#" className="bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium" aria-current="page">Home</a>
+                    <a href="profile" className="bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium" aria-current="page">Home</a>
                     <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">SERVICE</a>
                     <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">ABOUT US</a>
                     <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">CONTACT</a>

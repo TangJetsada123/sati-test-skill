@@ -1,10 +1,12 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useContext } from "react";
 import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { api } from "../components/path";
 import Swal from "sweetalert2";
+import jwtDecode from "jwt-decode";
+import { MyContext } from "../context/context";
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
 
@@ -15,12 +17,20 @@ const Login = () => {
 
     const [user, setUser] = useState('');
     const [userFocus, setUserFocus] = useState(false);
-
     const [pwd, setPwd] = useState('');
     const [validPwd, setValidPwd] = useState(false);
     const [pwdFocus, setPwdFocus] = useState(false);
-
-
+    const { myData, setMyData } = useContext(MyContext)
+    const { token, setToken } = useContext(MyContext)
+    const [userData, setUserData] = useState({
+        _id: "",
+        firstname: "",
+        lastname: "",
+        profile_image: "",
+        birth_date: "",
+        email: "",
+        post_count: 0
+    })
     const [errMsg, setErrMsg] = useState('');
 
     useEffect(() => {
@@ -39,8 +49,10 @@ const Login = () => {
         const token = localStorage.getItem('token')
         if (token) {
             navigate('/home')
+        } else {
+            navigate('/')
         }
-    })
+    }, [myData])
     const handleSubmit = async () => {
         try {
             await axios.post(`${api}/auth/login`, {
@@ -48,25 +60,52 @@ const Login = () => {
                 password: pwd
             }).then(
                 async (res) => {
-                    console.log(res.data.access_token)
                     localStorage.setItem('token', res.data.access_token);
-                    await Swal.fire(
-                        'Welcome to Sati!',
-                        '',
-                        'success'
-                      )
-                    window.location = '/home';
+                    const userId = await jwtDecode(res.data.access_token)
+                    await axios.get(`${api}/user/${userId.sub}`, {
+                        headers: {
+                            Authorization: `Bearer ${res.data.access_token}`
+                        }
+                    }).then(async (res) => {
+                        if (res.data) {
+                            const { _id, firstname, lastname, profile_image, birth_date, email, post_count } = res.data;
+                            setUserData({
+                                _id,
+                                firstname,
+                                lastname,
+                                profile_image,
+                                birth_date,
+                                email,
+                                post_count
+                            }); // pass the entire object to setUserData
+                            await Swal.fire(
+                                'Welcome to Sati!',
+                                '',
+                                'success'
+                            );
+                            navigate(`/home`);
+                        } else {
+                            throw new Error(); // use "Error" instead of "error"
+                        }
+                    });
                 }
             )
         } catch (error) {
+            console.log(error)
             Swal.fire(
-                'The usename or password you entered is incorrect!',
+                'The usename or password you entered is invalid!',
                 '',
                 'error'
-              )
+            )
         }
 
     };
+
+    useEffect(() => {
+        if (userData && Object.keys(userData).length > 0) { // check if userData exists and is not empty
+            localStorage.setItem("userData", JSON.stringify(userData));
+        }
+    }, [userData]);
 
     return (
         <div className="flex justify-center items-center h-screen">
@@ -87,7 +126,7 @@ const Login = () => {
                             <div className="flex-box items-center gap-3">
                                 <label htmlFor="username" className="text-lg text-[#062e48]">
                                     Email:
-                                  
+
                                 </label>
                                 <input
                                     className="
@@ -129,7 +168,7 @@ const Login = () => {
                             </div>
                             <p id="pwdnote" className={`${pwdFocus && !validPwd ? "text-[#062e48]" : "hidden"} text-sm`}>
                                 <FontAwesomeIcon icon={faInfoCircle} className="mr-1" />
-                                Your password must not contains a sequential alphabet and numeric sequence (e.g. abcdef, 123456). Please choose a stronger password.
+                                Password must contain at least one Uppercase letter, one Lowercase letter, one digit, and one special symbol @$!%*?&.
                             </p>
                         </form>
                         <button onClick={handleSubmit} className="bg-[#44edc7] text-[#062e48] hover:bg-[#43e8c1]  font-semibold py-2 px-4 border border-gray-400 rounded shadow">Sign In</button>

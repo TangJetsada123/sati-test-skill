@@ -37,12 +37,11 @@ export class PostService {
     }
     return await this.postModel.find({
         user: `${userId}`
-    })
-    .exec()
+    }).sort({createdAt: 'desc'}).populate('user').exec()
   }
 
   update(id: string, updatePostDto: UpdatePostDto) {
-    return this.postModel.findByIdAndUpdate({ _id: id }, updatePostDto)
+    return this.postModel.findByIdAndUpdate({ _id: id }, updatePostDto,{new : true})
   }
 
   async remove(id: string) {
@@ -53,7 +52,6 @@ export class PostService {
       await this.userModel.findByIdAndUpdate(
         userId,
         { $inc: { post_count: -1 } },
-        { new: true },
       );
     } catch (error) {
       throw new NotFoundException()

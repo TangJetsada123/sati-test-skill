@@ -5,12 +5,17 @@ import jwtDecode from "jwt-decode"
 import axios from "axios";
 import { api } from "./path";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
-const Feed = () => {
+const Feed = (props) => {
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     const [description, setDescription] = useState('');
-
+    const [listPost, setListPost] = useState(false)
+    const navigate = useNavigate()
+    const token = localStorage.getItem('token')
+    const userId = jwtDecode(token)
+    const data = JSON.parse(localStorage.getItem('userData'))
     const handleImageUpload = (event) => {
         const selectedImage = event.target.files[0];
         setImage(selectedImage);
@@ -23,8 +28,6 @@ const Feed = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        const token = localStorage.getItem('token')
-        const userId = jwtDecode(token)
         axios.post(`${api}/post`, {
             text: description,
             file: image,
@@ -35,22 +38,44 @@ const Feed = () => {
                 'Content-Type': 'multipart/form-data',
             }
 
-        }).then(async (res) => {
-            await Swal.fire(
-                'Welcome to Sati!',
-                '',
-                'success'
-            )
-            window.location = '/home'
+        }).then(async () => {
+                await Swal.fire(
+                    'Post Success!',
+                    '',
+                    'success'
+                )
+                axios.get(`${api}/user/${data._id}`,{
+                    headers:{
+                        Authorization: `Bearer ${token}`
+                    }
+                }).then((res)=>{
+                    localStorage.setItem('userData',JSON.stringify(res.data))
+                    window.location.reload()
+                })
+                navigate('/home')
+            })
+
+        }
+
+
+    useEffect(() => {
+        axios.get(`${api}/post`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }).then((res) => {
+            if (res.data) {
+                setListPost(true)
+            }
         })
-    };
+    }, [])
 
     return (<>
         <div className="">
             <div className="p-6">
                 <div className="flex justify-evenly gap-5">
                     <div>
-                        <div className="p-8 bg-white shadow-2xl">
+                        <div className="p-8 bg-white shadow-2xl rounded-2xl">
                             <div className=" max-w-2xl">
                                 <div className="px-4 py-5 sm:px-6">
                                     <h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -63,27 +88,27 @@ const Feed = () => {
                                 <div className="border-t border-gray-200">
                                     <dl className="w-[200px]">
                                         <div className="bg-gray-50 ">
-                                            <dt className="text-sm font-medium text-gray-500 py-5 text-clip">
+                                            <dt className="text-sm font-medium text-gray-500 py-5 text-clip hover:bg-gray-200 ">
                                                 กกต.เตือนเลือกตั้งพรุ่งนี้ ห้ามใส่เสื้อที่มีหมายเลขสอดคล้องผู้สมัคร
                                             </dt>
                                         </div>
                                         <div className="bg-white ">
-                                            <dt className="text-sm font-medium text-gray-500 py-5 text-clip">
+                                            <dt className="text-sm font-medium text-gray-500 py-5 text-clip hover:bg-gray-200 ">
                                                 “2 แคนดิเดตนายกฯ” นำทัพใหญ่ “เพื่อไทย” หาเสียงวันสุดท้าย พร้อมสู้เอาประชาธิปไตยให้ ปชช.
                                             </dt>
                                         </div>
                                         <div className="bg-gray-50 ">
-                                            <dt className="text-sm font-medium text-gray-500 py-5 text-clip">
+                                            <dt className="text-sm font-medium text-gray-500 py-5 text-clip hover:bg-gray-200 ">
                                                 รวมเลขเด็ดงวดนี้ 16/5/66 ปฏิทินจีน แม่น้ำหนึ่ง เลขดังทุกสำนัก
                                             </dt>
                                         </div>
                                         <div className="bg-gray-50 ">
-                                            <dt className="text-sm font-medium text-gray-500 py-5 text-clip">
+                                            <dt className="text-sm font-medium text-gray-500 py-5 text-clip hover:bg-gray-200 ">
                                                 สื่อสารเลือกตั้ง66 อย่างเท่าทันและเท่าเทียม ด้วย “Big Sign ภาษามือคำศัพท์ทางการเมือง” เพื่อคนหูหนวก
                                             </dt>
                                         </div>
                                         <div className="bg-gray-50 ">
-                                            <dt className="text-sm font-medium text-gray-500 py-5 text-clip">
+                                            <dt className="text-sm font-medium text-gray-500 py-5 text-clip hover:bg-gray-200 ">
                                                 เห็นลายปริศนาบนมือลูก อวด "ครู" วาดให้ แม่ตงิดใจแจ้งตำรวจ จับแก๊งลักเด็กในคราบครู
                                             </dt>
                                         </div>
@@ -99,7 +124,7 @@ const Feed = () => {
                                 <div>
                                     <form className="bg-white shadow-md rounded px-8  pb-8 mb-4" onSubmit={handleSubmit}>
                                         <div className="mb-4">
-                                            <TextareaAutosize className="border-gray-300 border-b-[0.5px] bg-[white] text-black  text-lg  w-[100%] min-w-[300px] max-w-full h-[20vh] pt-10 p-6" placeholder="What's happening?!" id="description"
+                                            <TextareaAutosize className=" focus:outline-0  bg-[white] text-black  text-lg  w-[100%] min-w-[300px] max-w-full h-[20vh] pt-10 p-6" placeholder="What's happening?!" id="description"
                                                 value={description}
                                                 onChange={(event) => setDescription(event.target.value)} >
                                             </TextareaAutosize>
@@ -138,14 +163,16 @@ const Feed = () => {
                                     </form>
                                 </div>
                             </div>
-                            <div className=" bg-white shadow-2xl">
-                                <Post />
+                            <div className=" bg-white shadow-2xl">  {
+                                listPost ? (<div><Post id="" /></div>) : null
+                            }
+
                             </div>
                         </div>
                     </div>
                     <div>
                         <div >
-                            <div className="p-8 bg-white shadow-2xl h-[100%]">
+                            <div className="p-8 bg-white shadow-2xl h-[100%]  rounded-2xl">
                                 <div className="w-[300px]">
                                     <div className="px-4 py-5 sm:px-6">
                                         <h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -157,29 +184,29 @@ const Feed = () => {
                                     </div>
                                     <div className="border-t border-gray-200">
                                         <dl className="w-full">
-                                            <div className="bg-gray-50 py-5 px-5  ">
+                                            <div className="bg-gray-50 py-5 px-5 hover:bg-gray-200 ">
                                                 <dt className="text-sm font-medium text-gray-500">
                                                     #ก้าวไกลทั้งแผ่นดิน
                                                 </dt>
                                             </div>
-                                            <div className="bg-white py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                            <div className=" bg-gray-50 py-5 px-5 hover:bg-gray-200 ">
                                                 <dt className="text-sm font-medium text-gray-500">
                                                     #ปราศัยใหญ่เพื่อไทย
                                                 </dt>
 
                                             </div>
-                                            <div className="bg-gray-50  py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                            <div className="bg-gray-50 py-5 px-5 hover:bg-gray-200 ">
                                                 <dt className="text-sm font-medium text-gray-500">
                                                     #วอลเลย์บอลหญิง
                                                 </dt>
                                             </div>
-                                            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                            <div className="bg-gray-50 py-5 px-5 hover:bg-gray-200 ">
                                                 <dt className="text-sm font-medium text-gray-500">
                                                     #BABYMONSTER
                                                 </dt>
 
                                             </div>
-                                            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                            <div className="bg-gray-50 px-4 py-5 hover:bg-gray-200 ">
                                                 <dt className="text-sm font-medium text-gray-500">
                                                     #Sati
                                                 </dt>

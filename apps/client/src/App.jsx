@@ -1,6 +1,6 @@
 import Routers from './components/routes';
 import './App.css'
-import { MyContextProvider } from './context/context';
+import {  MyContextProvider } from './context/context';
 
 function App() {
 

@@ -6,7 +6,6 @@ import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icon
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from 'react-router-dom'
 
-
 const fileTypes = ["image/jpeg", "image/png", "image/bmp"]; // Allowed file types
 const maxSize = 5 * 1024 * 1024; // 5 MB
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
@@ -19,7 +18,7 @@ const FormComponent = () => {
         confirmPassword: "",
         firstname: "",
         lastname: "",
-        birth_date:"",
+        birth_date: "",
         file: {},
     });
     const navigate = useNavigate()
@@ -31,7 +30,6 @@ const FormComponent = () => {
     const [conpwdFocus, setConPwdFocus] = useState(false);
     const [validFile, setValidFile] = useState(false)
     const [fileFocus, setFileFocus] = useState(false)
-
     const [errMsg, setErrMsg] = useState('');
 
     useEffect(() => {
@@ -40,7 +38,7 @@ const FormComponent = () => {
 
     useEffect(() => {
         setValidPwd(PASSWORD_REGEX.test(formData.password))
-        setValidConPwd(formData.password === formData.confirmPassword)        
+        setValidConPwd(formData.password === formData.confirmPassword)
         setValidFile(formData.file && fileTypes.includes(formData.file.type) && formData.file.size <= maxSize)
     }, [{ ...formData }])
 
@@ -55,7 +53,7 @@ const FormComponent = () => {
         }
     })
 
-   
+
 
     const handleChange = (e) => {
         setFormData({
@@ -63,7 +61,6 @@ const FormComponent = () => {
             [e.target.name]: e.target.type === "file" ? e.target.files[0] : e.target.value,
         });
     };
-
 
     const handleNext = () => {
         setStep(step + 1);
@@ -80,18 +77,20 @@ const FormComponent = () => {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
-            });
+            }).then((res) => {
+                localStorage.setItem('userData', JSON.stringify(res.data))
+            })
             await Swal.fire({
                 icon: 'success',
                 title: 'Registration Successful',
                 text: 'Welcome to Sati',
             })
-            await axios.post(`${api}/auth/login`,{
+            await axios.post(`${api}/auth/login`, {
                 email: formData.email,
                 password: formData.password
-            }).then((res)=>{
-                localStorage.setItem('token',res.data.access_token)
-                window.location = '/home'
+            }).then((res) => {
+                localStorage.setItem('token', res.data.access_token)
+                navigate('/home')
             })
 
 
@@ -164,7 +163,7 @@ const FormComponent = () => {
                                 onBlur={() => setPwdFocus(false)} />
                             <p id="pwdnote" className={`${pwdFocus && formData.password && !validPwd ? "text-red-500" : "hidden"} text-sm`}>
                                 <FontAwesomeIcon icon={faInfoCircle} className="mr-1" />
-                                4 to 24 characters. Must contain with Letters, numbers, underscores.
+                                Password must contain at least one Uppercase letter, one Lowercase letter, one digit, and one special symbol @$!%*?&.
                             </p>
                         </div>
                         <div className="mb-4">

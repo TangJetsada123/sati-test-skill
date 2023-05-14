@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Query, BadGatewayException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Query, BadGatewayException, UseGuards, Put, BadRequestException } from '@nestjs/common';
 import { PostService } from './post.service';
-import { CreatePostDto, UserIdDto,UpdatePostDto} from './dto/create-post.dto';
+import { CreatePostDto, UserIdDto, UpdatePostDto } from './dto/create-post.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from 'src/upload/upload.service';
 import { ConfirmDeleteDto } from 'src/user/dto/user.dto';
@@ -12,15 +12,15 @@ export class PostController {
   constructor(
     private readonly postService: PostService,
     private readonly uploadService: UploadService
-    ) {}
+  ) { }
 
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   @Post()
-  async create(@Body() createPostDto: CreatePostDto,@UploadedFile() file: Express.Multer.File) {
+  async create(@Body() createPostDto: CreatePostDto, @UploadedFile() file: Express.Multer.File) {
     const image = await this.uploadService.upload(file)
     createPostDto.post_image = image
-    return this.postService.create({...createPostDto});
+    return this.postService.create({ ...createPostDto });
   }
 
   @UseGuards(AuthGuard)
@@ -31,8 +31,8 @@ export class PostController {
 
   @UseGuards(AuthGuard)
   @Get('/user/:_id')
-  findByUserId(@Param("_id") userId: string){
-    
+  findByUserId(@Param("_id") userId: string) {
+
     return this.postService.findAllByUserId(userId)
   }
 
@@ -44,21 +44,20 @@ export class PostController {
 
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  @Patch(':_id')
-  async update(@Param('_id') id: string, @Body() updatePostDto: UpdatePostDto,@UploadedFile() file: Express.Multer.File) {
-    const image = await this.uploadService.upload(file)
-    updatePostDto.post_image = image 
-    return this.postService.update(id,{...updatePostDto});
+  @Put(':_id')
+  async update(@Param('_id') id: string, @Body() updatePostDto: UpdatePostDto, @UploadedFile() file: Express.Multer.File) {
+    console.log(id)
+    if (file) {
+      const image = await this.uploadService.upload(file)
+      updatePostDto.post_image = image
+    }
+    return this.postService.update(id, { ...updatePostDto });
   }
 
 
   @UseGuards(AuthGuard)
   @Delete(':_id')
-  remove(@Param('_id') id: string,@Body() confirmDelete: ConfirmDeleteDto) {
-    if(Boolean(confirmDelete.confirm) == Boolean(true)){
+  remove(@Param('_id') id: string) {
       return this.postService.remove(id);
-    }else{
-      throw new BadGatewayException('Confirm to Delete Post permanenly!')
-    }
   }
 }
