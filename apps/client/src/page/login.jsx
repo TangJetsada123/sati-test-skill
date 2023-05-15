@@ -91,7 +91,6 @@ const Login = () => {
                 }
             )
         } catch (error) {
-            console.log(error)
             Swal.fire(
                 'The usename or password you entered is invalid!',
                 '',

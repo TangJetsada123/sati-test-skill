@@ -46,7 +46,6 @@ export class PostController {
   @UseInterceptors(FileInterceptor('file'))
   @Put(':_id')
   async update(@Param('_id') id: string, @Body() updatePostDto: UpdatePostDto, @UploadedFile() file: Express.Multer.File) {
-    console.log(id)
     if (file) {
       const image = await this.uploadService.upload(file)
       updatePostDto.post_image = image

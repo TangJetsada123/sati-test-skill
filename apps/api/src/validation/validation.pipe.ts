@@ -5,7 +5,6 @@ export class YupValidatorPipe implements PipeTransform {
     constructor(private readonly schema: Schema<{}>){}
 
     async transform(value: any, metadata: ArgumentMetadata) {
-        console.log(value)
         try{
             await this.schema.validate(value,{abortEarly:false})
         }catch(err){

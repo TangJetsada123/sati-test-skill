@@ -1,10 +1,8 @@
 import axios from "axios"
-import { useState, useRef, useEffect } from "react"
+import { useState } from "react"
 import Swal from "sweetalert2";
 import { api } from "../components/path";
 import { useNavigate } from "react-router-dom";
-import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 
@@ -75,8 +73,9 @@ const ProfileAccount = () => {
                 title: ` Password must contain at least one Uppercase letter, one Lowercase letter, one digit, and one special symbol @$!%*?&. `,
             }
             )
-        } else {
-            if (resetData.password == resetData.confirmPassword) {
+        } 
+        
+        if (resetData.password == resetData.confirmPassword) {
                 return (
                     Swal.fire({
                         title: 'Are you sure?',
@@ -100,7 +99,6 @@ const ProfileAccount = () => {
                                 await axios.put(`${api}/user/reset-password/${data._id}`, password, {
                                     headers: header
                                 }).then(async (res) => {
-                                    console.log(res.data)
                                     await Swal.fire(
                                         'Your Password has been updated!',
                                         'success'
@@ -126,7 +124,7 @@ const ProfileAccount = () => {
                     title: `Password and Confirm Password missmatch`,
                 })
             }
-        }
+        
 
     }
 

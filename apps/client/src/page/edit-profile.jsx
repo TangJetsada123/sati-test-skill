@@ -3,7 +3,6 @@ import Swal from 'sweetalert2'
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react";
-import jwt_decode from "jwt-decode";
 import { api } from "../components/path";
 
 const Edit = () => {
