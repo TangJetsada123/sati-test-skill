@@ -70,6 +70,8 @@ export class UserController {
     if (!user) {
       throw new BadRequestException('The user is undefined or null. Please provide a valid user.')
     }
+    
+    
     const verifyPassword = await  bcrypt.compare(userDto.current_password,user.password)
     if(!verifyPassword){
       throw new BadRequestException("Current Password  invalid!")

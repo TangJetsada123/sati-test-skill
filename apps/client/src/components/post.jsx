@@ -1,5 +1,5 @@
 import axios from "axios"
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect } from "react"
 import { api } from "./path"
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 import AnalyticsOutlinedIcon from '@mui/icons-material/AnalyticsOutlined';
@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 
 const Post = (props) => {
     const [post, setPost] = useState([])
-    const [profile_image, setProfileImage] = useState("")
     const [selectedPost, setSelectedPost] = useState(null);
     const [count, setCount] = useState(0);
     const [editedText, setEditedText] = useState('');
