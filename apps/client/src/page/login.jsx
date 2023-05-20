@@ -67,6 +67,7 @@ const Login = () => {
                             Authorization: `Bearer ${res.data.access_token}`
                         }
                     }).then(async (res) => {
+                        localStorage.setItem('userData', JSON.stringify(res.data))
                         if (res.data) {
                             const { _id, firstname, lastname, profile_image, birth_date, email, post_count } = res.data;
                             setUserData({
