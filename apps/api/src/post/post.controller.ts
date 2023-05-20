@@ -18,8 +18,11 @@ export class PostController {
   @UseInterceptors(FileInterceptor('file'))
   @Post()
   async create(@Body() createPostDto: CreatePostDto, @UploadedFile() file: Express.Multer.File) {
-    const image = await this.uploadService.upload(file)
-    createPostDto.post_image = image
+    if(file){
+      const image = await this.uploadService.upload(file)
+      createPostDto.post_image = image
+    }
+    
     return this.postService.create({ ...createPostDto });
   }
 
